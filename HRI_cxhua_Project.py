@@ -104,6 +104,8 @@ class Pepper:
             elif key.char == "3":
             	 self.ask("Are you a robot?")
             	 self.speak("Are you a robot?")
+            elif key.char == "4":
+                self.experiment()
         except AttributeError:
             print("special key {0} pressed".format(key))
 
