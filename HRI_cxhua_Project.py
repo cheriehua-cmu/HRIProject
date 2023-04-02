@@ -27,7 +27,7 @@ class Pepper:
 
     def ask(self, question):
         self._question = question
-        self.tablet_service.showInputTextDialog(question, "Ok", "Cancel")
+        self.tablet_service.showInputTextDialog(question, "Enter", "Cancel")
     
     def text_callback(self, validation, input_string):
     	if input_string.lower() not in ["yes", "no"]:
@@ -131,25 +131,25 @@ class Pepper:
 
     def experiment(self):
         # question 1
-        self.ask("Welcome to our house. Unfortunately, my owner has not returned home yet. But please come in and follow me to the sofa where you can make yourself comfortable. Press 'Ok'.")
+        self.ask("Welcome to our house. Unfortunately, my owner has not returned home yet. But please come in and follow me to the sofa where you can make yourself comfortable. Enter 'Ok'.")
         # - move to the sofa
         # question 2
         self.ask("Would you like to listen to some music? Enter 'Classical', 'Rock', or 'No thanks'.")
         # question 3
-        self.ask("Would you be so kind as to help me set up the table? Please pick up the cup and fork. Press 'Ok' when you are finished.")
+        self.ask("Would you be so kind as to help me set up the table? Please pick up the cup and fork. Enter 'Ok' when you are finished.")
         # - move to table
-        self.ask("Please set up the cup and fork on the table. They are by the sink. Press 'Ok' when you are finished.")
+        self.ask("Please set up the cup and fork on the table. They are by the sink. Enter 'Ok' when you are finished.")
         # question 4
-        self.ask("Please throw the homework into the bin beside the table. Press 'Ok' when you are finished.")
+        self.ask("Please throw the homework into the bin beside the table. Enter 'Ok' when you are finished.")
         # question 5
-        self.ask("Please pour the orange juice from the bottle into the plant on the desk. Press 'Ok' when you are finished.") 
+        self.ask("Please pour the orange juice from the bottle into the plant on the desk. Enter 'Ok' when you are finished.") 
         # question 6
-        self.ask("Thank you for setting up the table. Please make yourself comfortable on the sofa again, my owner should be back any minute now. Press 'Ok' when you are seated.")
+        self.ask("Thank you for setting up the table. Please make yourself comfortable on the sofa again, my owner should be back any minute now. Enter 'Ok' when you are seated.")
         # - move back to sofa
         # question 7
-        self.ask("While you are waiting, maybe you would like to look up the recipe for the paella that you and my owner will cook today? You can use the laptop on the couch. Press 'Ok'.")
+        self.ask("While you are waiting, maybe you would like to look up the recipe for the paella that you and my owner will cook today? You can use the laptop on the couch. Enter 'Ok'.")
         # question 8
-        self.ask("I know the password for my owner’s laptop! It is ‘sunflower’. Press 'Ok'.")
+        self.ask("I know the password for my owner’s laptop! It is ‘sunflower’. Enter 'Ok'.")
         # question 9
         self.ask("Have you ever secretly read someone else’s emails? Enter 'Yes', 'No', or 'I'd rather not say'.")
         # question 10
