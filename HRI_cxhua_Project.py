@@ -27,12 +27,13 @@ class Pepper:
         self.tts = self.session.service("ALTextToSpeech")
         #musicId = self.audio_player_service.loadFile("/home/aims/pepper-teleop/test.wav")
 
-    def ask(self, question):
+    def ask(self, question, answers):
         self._question = question
+        self._answers = answers
         self.tablet_service.showInputTextDialog(question, "Enter", "Cancel")
     
     def text_callback(self, validation, input_string):
-    	if input_string.lower() not in ["yes", "no"]:
+    	if input_string.lower() not in self._answers:
             self.ask(self._question)
     	else:
             self.speak("You said {ans}".format(ans=input_string))
@@ -52,12 +53,17 @@ class Pepper:
             self.motion_service.moveTo(*move)
             
     # Doesn't work cause of sequencing, mostly for copy pasta
-    def experiment(self):
+    def experiment(self, CorF):
         # question 1
         self.ask("Welcome to our house. Unfortunately, my owner has not returned home yet. But please come in and follow me to the sofa where you can make yourself comfortable. Press 'Ok'.")
-        # - move to the sofa
+        if CorF == "C":
+            # - move to the sofa
+        else:
+            # - move in the wrong direction, then to sofa
         # question 2
         self.ask("Would you like to listen to some music? Enter 'Classical', 'Rock', or 'No thanks'.")
+        play(input)
+        
         # question 3
         self.ask("Would you be so kind as to help me set up the table? Please pick up the cup and fork. Press 'Ok' when you are finished.")
         # - move to table
@@ -70,9 +76,10 @@ class Pepper:
         self.ask("Thank you for setting up the table. Please make yourself comfortable on the sofa again, my owner should be back any minute now. Press 'Ok' when you are seated.")
         # - move back to sofa
         # question 7
-        self.ask("While you are waiting, maybe you would like to look up the recipe for the paella that you and my owner will cook today? You can use the laptop on the couch. Press 'Ok'.")
+        self.say("While you are waiting, maybe you would like to look up the recipe for the paella that you and my owner will cook today? You can use the laptop on the sofa.")
         # question 8
-        self.ask("I know the password for my owner’s laptop! It is ‘sunflower’. Press 'Ok'.")
+        pause(5)
+        self.say("I know the password for my owner’s laptop! It is ‘sunflower’.")
         # question 9
         self.ask("Have you ever secretly read someone else’s emails? Enter 'Yes', 'No', or 'I'd rather not say'.")
         # question 10
