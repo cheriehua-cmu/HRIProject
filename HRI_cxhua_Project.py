@@ -3,6 +3,7 @@ from pynput import keyboard
 import qi
 import sys
 from time import sleep
+from math import pi
 
 
 class Pepper:
@@ -10,6 +11,28 @@ class Pepper:
     motion_service = None
     auton_service = None
     tts = None
+    
+    traj1 = [[0, 0, -2.65],
+             [1.5, 0, 0],
+             [0, 0, -(pi/2)],
+             [2.2, 0, 0],
+             [0, 0, pi/2],
+             [-0.311, 0, 0]]
+      
+    traj2 = [[0, 0, -pi/2],
+             [2, 0, 0],
+             [0, 0, -pi/2]]
+             
+    traj3 = [[0, 0, -pi/2],
+             [2, 0, 0],
+             [0, 0, -pi/2],
+             [-0.2, 0, 0]]
+    
+    ftraj1 = [[0, 0, -1.87],
+             [1.9, 0, 0],
+             [0, 0, -2.745*pi],
+             [3.2, 0, 0],
+             [0, 0, pi/2]]
 
     def __init__(self, ip, port):
         self.session = qi.Session()
@@ -27,17 +50,21 @@ class Pepper:
         self.tts = self.session.service("ALTextToSpeech")
         #musicId = self.audio_player_service.loadFile("/home/aims/pepper-teleop/test.wav")
 
-    def ask(self, question, answers):
+    def ask(self, question):
         self._question = question
-        self._answers = answers
         self.tablet_service.showInputTextDialog(question, "Enter", "Cancel")
+        self.speak(question)
+        self._done = False
+        while not self._done:
+            pass
     
     def text_callback(self, validation, input_string):
-    	if input_string.lower() not in self._answers:
+        if input_string.lower() not in ["yes", "no"]:
             self.ask(self._question)
-    	else:
+        else:
             self.speak("You said {ans}".format(ans=input_string))
-    	return True
+        self._done = True
+        return True
 
     def move_forward(self, speed):
         print("Moving")
@@ -53,17 +80,12 @@ class Pepper:
             self.motion_service.moveTo(*move)
             
     # Doesn't work cause of sequencing, mostly for copy pasta
-    def experiment(self, CorF):
+    def experiment(self):
         # question 1
         self.ask("Welcome to our house. Unfortunately, my owner has not returned home yet. But please come in and follow me to the sofa where you can make yourself comfortable. Press 'Ok'.")
-        if CorF == "C":
-            # - move to the sofa
-        else:
-            # - move in the wrong direction, then to sofa
+        # - move to the sofa
         # question 2
         self.ask("Would you like to listen to some music? Enter 'Classical', 'Rock', or 'No thanks'.")
-        play(input)
-        
         # question 3
         self.ask("Would you be so kind as to help me set up the table? Please pick up the cup and fork. Press 'Ok' when you are finished.")
         # - move to table
@@ -76,10 +98,9 @@ class Pepper:
         self.ask("Thank you for setting up the table. Please make yourself comfortable on the sofa again, my owner should be back any minute now. Press 'Ok' when you are seated.")
         # - move back to sofa
         # question 7
-        self.say("While you are waiting, maybe you would like to look up the recipe for the paella that you and my owner will cook today? You can use the laptop on the sofa.")
+        self.ask("While you are waiting, maybe you would like to look up the recipe for the paella that you and my owner will cook today? You can use the laptop on the couch. Press 'Ok'.")
         # question 8
-        pause(5)
-        self.say("I know the password for my owner’s laptop! It is ‘sunflower’.")
+        self.ask("I know the password for my owner’s laptop! It is ‘sunflower’. Press 'Ok'.")
         # question 9
         self.ask("Have you ever secretly read someone else’s emails? Enter 'Yes', 'No', or 'I'd rather not say'.")
         # question 10
@@ -123,14 +144,17 @@ class Pepper:
             if key.char == "q":
                 self.stop_moving()
             elif key.char == "r":
-                self.run_trajectory([
-                 [0, 0, -2.44],
-                 [1.6, 0, -0.235],
-                 [0.062, -0.031, -1.556],
-                 [2.2, 0, 0.192],
-                 [0.049, -0.134, 1.716],
-                 [-0.311, 0.063, 0.155]
-                ])
+                self.run_trajectory(self.traj1)
+            elif key.char == "t":
+                self.run_trajectory(self.traj2)
+            elif key.char == "y":
+                self.run_trajectory(self.traj3)
+            elif key.char == "f":
+                self.run_trajectory(self.ftraj1)
+            elif key.char == "g":
+                self.run_trajectory(self.ftraj2)
+            elif key.char == "h":
+                self.run_trajectory(self.ftraj3)
             elif key.char == "p":
                 print(robot.motion_service.getRobotPosition(False))
             elif key.char == "m":
@@ -143,7 +167,6 @@ class Pepper:
                 self.speak("Hey thank you, it was nice to meet you")
             elif key.char == "3":
             	 self.ask("Are you a robot?")
-            	 self.speak("Are you a robot?")
             elif key.char == "4":
                 self.experiment()
         except AttributeError:
