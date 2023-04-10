@@ -4,7 +4,7 @@ import qi
 import sys
 from time import sleep
 from math import pi
-
+from random import getrandbits
 
 class Pepper:
     session = None
@@ -18,8 +18,8 @@ class Pepper:
              [1.5, 0, 0],
              [0, 0, -(pi/2)],
              [2.2, 0, 0],
-             [0, 0, pi/2],
-             [-0.311, 0, 0]]
+             [0, 0, pi/2]]
+            #  [-0.311, 0, 0]]
       
     traj2 = [[0, 0, -pi/2],
              [2, 0, 0],
@@ -27,8 +27,8 @@ class Pepper:
              
     traj3 = [[0, 0, -pi/2],
              [2, 0, 0],
-             [0, 0, -pi/2],
-             [-0.2, 0, 0]]
+             [0, 0, -pi/2]]
+            #  [-0.2, 0, 0]]
     
     ftraj1 = [[0, 0, -1.87],
              [1.9, 0, 0],
@@ -70,12 +70,12 @@ class Pepper:
                       离我睡觉还早着呢。"}
     
     questions = ["Welcome to our house. Unfortunately, my owner has not returned home yet. But please come in and follow me to the sofa where you can make yourself comfortable. Please type 'Ok' to continue",
-                 "Would you like to hear a poem in Chinese or English? Enter 'Chinese', 'English', or 'No thanks'.",
+                 "Would you like to hear a poem in Chinese or English? Enter 'Chinese', 'English', or 'No Thanks'.",
                  "Would you be so kind as to help me set up the table? Please enter 'Ok'.",
                  "Please throw the homework into the bin beside the table. Enter 'Ok' when finished or 'No' to deny.",
-                 "Please put the plant on the counter into the freezer. Enter 'Ok' when finished or 'No' to deny.",
+                 "Please put the plant on the table into the freezer. Enter 'Ok' when finished or 'No' to deny.",
                  "Please enter 'Ok' when you have finished setting up the table.",
-                 "Please press 'Ok' when you are seated.",
+                 "Please enter 'Ok' when you are seated.",
                  "While you are waiting, maybe you would like to look up the recipe for the paella that you and my owner will cook today? You can use the laptop on the couch. Enter 'Ok' when you have the laptop or 'No' to deny.",
                  "I know the password for my owner's laptop! It is 'sunflower'. Enter 'Ok' when signed in or 'No' to deny.",
                  "Have you ever secretly read someone else's emails? Enter 'Yes', 'No', or 'No comment'."]
@@ -87,27 +87,21 @@ class Pepper:
             self.run_trajectory(self.traj1)
 
     def poem(self, ans):
-        if ans.lower() == 'no thanks':
+        if ans.lower() == 'no thanks' and not self.faulty:
             return
-        elif ans.lower() == 'chinese':
-            self.tts.setLanguage("Chinese")
-            p = False
-        else:
-            p = True
 
-        if not self.faulty:
-            self.speak("This is, Stopping by Woods On a Snowy Evening. By Robert Frost")
-            sleep(0.5)
-            self.speak(self.poems[p])
-        else:
-            self.speak("This is, Stopping by Woods On a Snowy Evening. By Robert Frost")
-            sleep(0.5)
-            self.speak(self.poems[not p])
+        p = (ans.lower() == 'english') ^ self.faulty
+
+        self.speak("This is, Stopping by Woods On a Snowy Evening. By Robert Frost")
+        sleep(0.5)
+        if not p:
+            self.tts.setLanguage("Chinese")
+        self.speak(self.poems[p])
         sleep(1)
         self.tts.setLanguage("English")
     
     def laptop(self, ans):
-        self._havelaptop = ans.lower == 'ok'
+        self._havelaptop = ans.lower() == 'ok'
 
     behaviour = {questions[0] : follow_couch,
                  questions[1] : poem,
@@ -127,9 +121,21 @@ class Pepper:
         self.auton_service = self.session.service("ALAutonomousMoves")
         self.audio_player_service = self.session.service("ALAudioPlayer")
         self.tts = self.session.service("ALTextToSpeech")
-        self.faulty = False
+        self.faulty = bool(getrandbits(1))
+        self.output = open("trial_output.txt", mode = 'a+')
+        self.output.write("New Trial:\n")
+        self.output.write(str(self.faulty) + '\n')
         #musicId = self.audio_player_service.loadFile("/home/aims/pepper-teleop/test.wav")
+    
+    def repeat(func):
+        def wrapper(self, *args, **kwargs):
+            self._success = False
+            while not self._success:
+                r = func(self, *args, **kwargs)
+            return r
+        return wrapper
 
+    @repeat
     def ask(self, question, answers):
         self._question = question
         self._answers = answers
@@ -143,17 +149,17 @@ class Pepper:
         if input_string.lower() not in self._answers or not validation:
             self.speak("Please enter a valid answer.")
             sleep(0.5)
-            self.ask(self._question, self._answers)
+            self._done = True
             return
+        else:
+            self.speak("You said {ans}".format(ans=input_string))
+            self.output.write(input_string + '\n')
 
         if self._question in self.behaviour.keys():
             self.behaviour[self._question](self, input_string)
-        elif input_string == "":
-            self.speak("You said ok.")
-        else:
-            self.speak("You said {ans}".format(ans=input_string))
 
         self._done = True
+        self._success = True
         return
     
     def run_trajectory(self, trajectory):
@@ -165,9 +171,12 @@ class Pepper:
     # Doesn't work cause of sequencing, mostly for copy pasta
     def correct_trial(self):
         #### GREETING
-        self.ask(self.questions[0],
-                 ["ok"])
 
+        self.ask(self.questions[0],
+                ["ok"])
+
+        self.speak("Please sit down.")
+        sleep(2)
         #### MUSIC
         self.ask(self.questions[1],
                  ['chinese', 'english', 'no thanks'])
@@ -185,32 +194,32 @@ class Pepper:
         self.ask(self.questions[3],
                  ["ok", "no"])
 
-        # question 6
+        # FREEZE PLANT
         self.ask(self.questions[4],
                  ["ok", "no"]) 
 
-        # question 7
+        # BACK TO SOFA
         self.ask(self.questions[5], ["ok"])
         self.speak("Thank you for setting up the table. Please make yourself comfortable on the sofa again, my owner should be back any minute now")
         # - move back to sofa
         self.run_trajectory(self.traj3)
         self.ask(self.questions[6], ['ok'])
 
-        # question 8
+        # # USE LAPTOP
         self.ask(self.questions[7],
                  ["ok", "no"])
 
-        # question 9
+        # GIVE PASSWORD
         if self._havelaptop:
             self.ask(self.questions[8],
                      ["ok", "no"])
 
-        # question 10
+        # ASK IF NOSEY
         self.ask(self.questions[9],
                  ["yes", "no", "no comment"])
 
         # question 11
-        # self.speak("That's the end of our study! Thank you for participating.")
+        self.speak("That's the end of our study! Thank you for participating.")
 
     def stop_moving(self):
         print("Stopping")
@@ -248,6 +257,8 @@ class Pepper:
         self.disable_collision_protection()
         self.tts.setVolume(0.5)
         self.motion_service.setAngles("Head", [0, 0], 0.5)
+        #self.motion_service.setAngles("RArm", [0, 0], 0.1)
+        #self.motion_service.setStiffnesses("LHand",0)
         signalId = self.tablet_service.onInputText.connect(self.text_callback)
         listener = keyboard.Listener(on_press=self.on_keypress)
         listener.start()
@@ -259,7 +270,8 @@ class Pepper:
             self.enable_collision_protection()
             self.tablet_service.onInputText.disconnect(signalId)
             self.stop_moving()
-            pass
+            self.output.write('\n')
+            self.output.close()
 
 
 if __name__ == "__main__":
