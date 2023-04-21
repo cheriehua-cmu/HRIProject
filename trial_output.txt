@@ -1,0 +1,52 @@
+New Trial:
+False
+ok
+no thanks
+ok
+no
+ok
+ok
+ok
+ok
+ok
+yes
+
+New Trial:
+True
+Ok
+English
+Ok
+Ok
+Ok
+Ok
+Ok
+Ok
+Ok
+No
+
+New Trial:
+False
+Ok
+English
+Ok
+Ok
+No
+Ok
+Ok
+Ok
+Ok
+No
+
+New Trial:
+True
+ok
+no thanks
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+no
+
