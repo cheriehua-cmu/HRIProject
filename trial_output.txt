@@ -50,3 +50,16 @@ ok
 ok
 no
 
+New Trial:
+False
+ok
+English
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+yes
+
