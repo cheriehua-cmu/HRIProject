@@ -51,9 +51,37 @@ ok
 no
 
 New Trial:
-False
+True
 ok
 English
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+yes
+
+New Trial:
+True
+ok
+English
+ok
+ok
+ok
+ok
+ok
+ok
+ok
+no
+ok
+no
+
+New Trial:
+True
+ok
+chinese
 ok
 ok
 ok
